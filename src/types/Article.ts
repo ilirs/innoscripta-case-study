@@ -1,4 +1,4 @@
-export type Source = 'nytimes' | 'newsapi';
+export type Source = 'nytimes' | 'newsapi' | 'theguardian';
 
 export interface Article {
   title: string;

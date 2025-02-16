@@ -1,17 +1,34 @@
 import { FetchStrategy } from './index';
 import { Article } from '../types/Article';
-import { Params } from '../types/params';
+import { Params } from '../types/Params';
 
 const NEWS_API_URL = 'https://newsapi.org/v2/everything';
 
 export class NewsAPIStrategy implements FetchStrategy {
   async fetchArticles(params: Params): Promise<Article[]> {
-    const queryParams = new URLSearchParams({
+    const urlQueryParams = new URLSearchParams({
       apiKey: process.env.REACT_APP_NEWSAPI_KEY!,
-      q: params.q || 'apple',
-      //   from: params.date || '',
-      //   source: params.source,
-    }).toString();
+      domains: 'bbc.co.uk',
+    });
+
+    // NewsApi doesn't support filter by categories
+    // if (params.category) {
+    //   urlQueryParams.append('section', mapCategories[params.category]);
+    // }
+
+    if (params.q) {
+      urlQueryParams.append('q', params.q);
+    }
+
+    if (params.from) {
+      urlQueryParams.append('from', params.from.toISOString().split('T')[0]);
+    }
+
+    if (params.to) {
+      urlQueryParams.append('to', params.to.toISOString().split('T')[0]);
+    }
+
+    const queryParams = urlQueryParams.toString();
 
     const response = await fetch(`${NEWS_API_URL}?${queryParams}`);
     const data = await response.json();

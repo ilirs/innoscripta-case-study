@@ -1,35 +1,78 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import ArticleCard from '../components/ArticleCard';
 import SearchBar from '../components/SearchBar';
 import { FetchContext } from '../strategies';
 import { NewsAPIStrategy } from '../strategies/NewsApi';
 import { NYTimesStrategy } from '../strategies/NyTimes';
+import { TheguardianStrategy } from '../strategies/TheGuardian';
 import { Article } from '../types/Article';
 import { useDebounce } from '../hooks/useDebounce';
+import { categories, Category } from '../utils/categories';
+import DatePicker from 'react-datepicker';
+import SourcesCheckbox from '../components/SourcesCheckbox';
 
-const fetchContext = new FetchContext();
-fetchContext.addStrategy(new NewsAPIStrategy());
-fetchContext.addStrategy(new NYTimesStrategy());
+const sourceMap = {
+  newsapi: new NewsAPIStrategy(),
+  nytimes: new NYTimesStrategy(),
+  theguardian: new TheguardianStrategy(),
+};
+
+export type SourceType = keyof typeof sourceMap;
 
 const Home: React.FC = () => {
   const [articles, setArticles] = useState<Article[]>([]);
   const [searchInput, setSearchInput] = useState('');
   const [debounceVal, setDebounceVal] = useState('');
-  //   const [source, setSource] = useState('');
-
-  const [category, setCategory] = useState(
-    localStorage.getItem('category') || ''
-  );
-
+  const [startDate, setStartDate] = useState<Date | null>(new Date());
+  const [endDate, setEndDate] = useState<Date | null>(new Date());
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const debounceValue = useDebounce(searchInput, 1000);
 
-  const fetchArticles = async (keyword: string, category: string) => {
-    const allArticles = await fetchContext.fetchAllArticles({
-      q: keyword, // Pass the debounced keyword
-      category: category,
-      //   source: source,
+  // Get the data from localStorage (user personalized news feed)
+  const [sources, setSources] = useState<SourceType[]>(() => {
+    const storedSources = localStorage.getItem('sources');
+    return storedSources ? JSON.parse(storedSources) : ['nytimes'];
+  });
+
+  const [category, setCategory] = useState<Category>(
+    (localStorage.getItem('category') as Category) || ''
+  );
+
+  const fetchContext = useMemo(() => {
+    const fetchContextNews = new FetchContext();
+    sources.map((source) => fetchContextNews.addStrategy(sourceMap[source]));
+    return fetchContextNews;
+  }, [sources]);
+
+  const handleCheckboxChange = (source: SourceType) => {
+    setSources((prevSources) => {
+      const newSources = prevSources.includes(source)
+        ? prevSources.filter((item) => item !== source)
+        : [...prevSources, source];
+
+      localStorage.setItem('sources', JSON.stringify(newSources));
+
+      return newSources;
     });
-    setArticles(allArticles);
+  };
+
+  const fetchArticles = async (keyword: string, category: Category) => {
+    setIsLoading(true);
+
+    try {
+      const allArticles = await fetchContext.fetchAllArticles({
+        q: keyword,
+        category: category,
+        from: startDate,
+        to: endDate,
+      });
+
+      setArticles(allArticles);
+    } catch (error) {
+      console.error('Error fetching articles:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Handle search input change
@@ -43,33 +86,41 @@ const Home: React.FC = () => {
   useEffect(() => {
     fetchArticles(debounceVal, category);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [category, sources, startDate, endDate]);
 
   useEffect(() => {
     setDebounceVal(searchInput);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debounceValue]);
 
-  // Extract unique categories
-  const uniqueCategories = Array.from(
-    new Set(articles.map((article) => article?.category))
-  ).filter(Boolean); // Remove undefined or null categories
-
-  // Extract unique source
-  //   const uniqueSource = Array.from(
-  //     new Set(articles.map((article) => article.source))
-  //   ).filter(Boolean);
-
   return (
-    <div className="p-4">
+    <div className="p-4 flex flex-col">
       {/* Search bar */}
       <SearchBar
         onSearch={(keyword) => setSearchInput(keyword)} // Update search input
       />
 
+      {/* Source type checkbox */}
+      <SourcesCheckbox
+        sources={sources}
+        onCheckboxChange={handleCheckboxChange}
+      />
+
+      {/* Date picker  */}
+      <div className="flex mb-2 flex-col gap-2 md:flex-row">
+        <div>
+          <span className="mr-2 font-semibold">From:</span>
+          <DatePicker selected={startDate} onChange={setStartDate} />
+        </div>
+        <div>
+          <span className="mr-2 font-semibold">To:</span>
+          <DatePicker selected={endDate} onChange={setEndDate} />
+        </div>
+      </div>
+
       {/* Category filter */}
       <div className="mb-4">
-        <label htmlFor="dateFilter" className="mr-2">
+        <label htmlFor="dateFilter" className="mr-2 font-semibold">
           Category:
         </label>
         <select
@@ -77,13 +128,13 @@ const Home: React.FC = () => {
           className="p-2 border rounded"
           value={category}
           onChange={(e) => {
-            setCategory(e.target.value);
+            setCategory(e.target.value as Category);
             localStorage.setItem('category', e.target.value);
-          }} // Update date filter
+          }}
         >
-          {uniqueCategories.map((category, index) => (
-            <option key={index} value={category}>
-              {category}
+          {categories.map((category, index) => (
+            <option key={index} value={category.id}>
+              {category.name}
             </option>
           ))}
         </select>
@@ -95,6 +146,8 @@ const Home: React.FC = () => {
           articles.map((article, index) => (
             <ArticleCard key={index} article={article} />
           ))
+        ) : isLoading ? (
+          <p>Loading...</p>
         ) : (
           <p>No articles found.</p>
         )}

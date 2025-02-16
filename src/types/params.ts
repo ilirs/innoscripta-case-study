@@ -1,9 +1,11 @@
+import { Category } from '../utils/categories';
 import { Source } from './Article';
 
 export interface Params {
   q?: string;
-  category?: string;
+  category?: Category;
   source?: Source;
   author?: string;
-  date?: string;
+  from?: Date | null;
+  to?: Date | null;
 }
