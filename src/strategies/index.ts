@@ -1,5 +1,5 @@
 import { Article } from 'types/Article';
-import { Params } from 'types/Params';
+import { Params } from '@/types/QueryParams';
 
 export interface FetchStrategy {
   fetchArticles(params: Params): Promise<Article[]>;

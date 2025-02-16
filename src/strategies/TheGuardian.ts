@@ -1,6 +1,6 @@
 import { FetchStrategy } from '.';
 import { Article } from 'types/Article';
-import { Params } from 'types/Params';
+import { Params } from '@/types/QueryParams';
 import { Category } from 'utils/categories';
 
 const GUARDIAN_URL = 'https://content.guardianapis.com/search';

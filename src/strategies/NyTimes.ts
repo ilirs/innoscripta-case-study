@@ -1,6 +1,6 @@
 import { FetchStrategy } from '.';
 import { Article } from 'types/Article';
-import { Params } from 'types/Params';
+import { Params } from '@/types/QueryParams';
 
 const NY_TIMES_URL = 'https://api.nytimes.com/svc/search/v2/articlesearch.json';
 const NY_WEB_URL = 'https://www.nytimes.com/';
