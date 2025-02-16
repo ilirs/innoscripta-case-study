@@ -29,7 +29,9 @@ const SourcesCheckbox: React.FC<SourcesCheckboxProps> = ({
               checked={sources.includes(source)}
               onChange={() => onCheckboxChange(source as SourceType)}
             />
-            <label htmlFor={source}>{source}</label>
+            <label className="capitalize" htmlFor={source}>
+              {source}
+            </label>
           </div>
         );
       })}

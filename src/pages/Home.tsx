@@ -149,6 +149,8 @@ const Home: React.FC = () => {
           ))
         ) : isLoading ? (
           <p>Loading...</p>
+        ) : sources.length === 0 ? (
+          <p>Please select a source</p>
         ) : (
           <p>No articles found.</p>
         )}

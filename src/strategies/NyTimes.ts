@@ -1,6 +1,7 @@
 import { FetchStrategy } from '.';
 import { Article } from 'types/Article';
 import { Params } from '@/types/QueryParams';
+import { Category } from '@/utils/categories';
 
 const NY_TIMES_URL = 'https://api.nytimes.com/svc/search/v2/articlesearch.json';
 const NY_WEB_URL = 'https://www.nytimes.com/';
@@ -13,21 +14,30 @@ const formatDate = (date: Date): string => {
   return `${year}${month}${day}`;
 };
 
+const mapCategories: Record<Category, string> = {
+  world_news: 'world',
+  business_finance: 'business',
+  politics: 'politics',
+  technology: 'technology',
+  sports: 'sports',
+  environment: 'environment',
+  science: 'science',
+  education: 'education',
+};
+
 export class NYTimesStrategy implements FetchStrategy {
   async fetchArticles(params: Params): Promise<Article[]> {
     const urlQueryParams = new URLSearchParams({
       'api-key': process.env.REACT_APP_NYTIMESAPI_KEY!,
-      news_desk: params.category || '',
-      //   source: params.source || 'The New York Times',
     });
+
+    if (params.category) {
+      urlQueryParams.append('news_desk', mapCategories[params.category]);
+    }
 
     if (params.q) {
       urlQueryParams.append('q', params.q);
     }
-
-    // if (params.category) {
-    //   urlQueryParams.append('section', mapCategories[params.category]);
-    // }
 
     if (params.from) {
       urlQueryParams.append('begin_date', formatDate(params.from));
@@ -48,11 +58,14 @@ export class NYTimesStrategy implements FetchStrategy {
       title: article.headline?.main || '',
       description: article.abstract || '',
       url: article.web_url,
-      urlToImage:
-        `${NY_WEB_URL}/${
-          article.multimedia?.find((media: any) => media.subtype === 'xlarge')
-            ?.url
-        }` || null,
+      urlToImage: article.multimedia?.find(
+        (media: any) => media.subtype === 'xlarge'
+      )?.url
+        ? `${NY_WEB_URL}/${
+            article.multimedia?.find((media: any) => media.subtype === 'xlarge')
+              ?.url
+          }`
+        : null,
       publishedAt: article.pub_date,
       content: null,
       category: article.news_desk,

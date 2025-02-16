@@ -11,15 +11,9 @@ const mapCategories: Record<Category, string> = {
   business_finance: 'business',
   technology: 'technology',
   sports: 'sport',
-  entertainment: 'culture',
   science: 'science',
-  health_wellness: 'wellness',
-  lifestyle: 'lifeandstyle',
   education: 'education',
   environment: 'environment',
-  crime_justice: 'law',
-  opinion_editorials: 'commentisfree',
-  technology_trends: 'technology',
 };
 
 export class TheguardianStrategy implements FetchStrategy {
