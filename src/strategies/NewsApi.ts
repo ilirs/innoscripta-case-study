@@ -1,6 +1,6 @@
 import { FetchStrategy } from './index';
-import { Article } from '../types/Article';
-import { Params } from '../types/Params';
+import { Article } from 'types/Article';
+import { Params } from 'types/Params';
 
 const NEWS_API_URL = 'https://newsapi.org/v2/everything';
 

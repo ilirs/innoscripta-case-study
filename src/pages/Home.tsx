@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import ArticleCard from '../components/ArticleCard';
-import SearchBar from '../components/SearchBar';
-import { FetchContext } from '../strategies';
-import { NewsAPIStrategy } from '../strategies/NewsApi';
-import { NYTimesStrategy } from '../strategies/NyTimes';
-import { TheguardianStrategy } from '../strategies/TheGuardian';
-import { Article } from '../types/Article';
-import { useDebounce } from '../hooks/useDebounce';
-import { categories, Category } from '../utils/categories';
 import DatePicker from 'react-datepicker';
-import SourcesCheckbox from '../components/SourcesCheckbox';
+import ArticleCard from 'components/ArticleCard';
+import SearchBar from 'components/SearchBar';
+import SourcesCheckbox from 'components/SourcesCheckbox';
+import { FetchContext } from 'strategies';
+import { NewsAPIStrategy } from 'strategies/NewsApi';
+import { NYTimesStrategy } from 'strategies/NyTimes';
+import { TheguardianStrategy } from 'strategies/TheGuardian';
+import { Article } from 'types/Article';
+import { useDebounce } from 'hooks/useDebounce';
+import { categories, Category } from 'utils/categories';
 
 const sourceMap = {
   newsapi: new NewsAPIStrategy(),
@@ -80,6 +80,7 @@ const Home: React.FC = () => {
     if (debounceVal !== '') {
       fetchArticles(debounceVal, category);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debounceVal, category]);
 
   // Fetch articles on inital load

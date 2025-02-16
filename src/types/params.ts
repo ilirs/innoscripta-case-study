@@ -1,4 +1,4 @@
-import { Category } from '../utils/categories';
+import { Category } from 'utils/categories';
 import { Source } from './Article';
 
 export interface Params {

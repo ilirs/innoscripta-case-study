@@ -1,6 +1,5 @@
 import React from 'react';
 import Home from './pages/Home';
-import 'react-datepicker/dist/react-datepicker.css';
 
 const App: React.FC = () => (
   <div className="container mx-auto">

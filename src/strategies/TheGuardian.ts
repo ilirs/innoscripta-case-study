@@ -1,7 +1,7 @@
 import { FetchStrategy } from '.';
-import { Article } from '../types/Article';
-import { Params } from '../types/Params';
-import { Category } from '../utils/categories';
+import { Article } from 'types/Article';
+import { Params } from 'types/Params';
+import { Category } from 'utils/categories';
 
 const GUARDIAN_URL = 'https://content.guardianapis.com/search';
 
@@ -49,7 +49,9 @@ export class TheguardianStrategy implements FetchStrategy {
 
     const queryParams = urlQueryParams.toString();
 
-    const response = await fetch(`${GUARDIAN_URL}?${queryParams}`);
+    const response = await fetch(
+      `${GUARDIAN_URL}?${queryParams}&show-fields=thumbnail`
+    );
     const data = await response.json();
 
     return data?.response?.results?.map((article: any) => ({
@@ -58,7 +60,7 @@ export class TheguardianStrategy implements FetchStrategy {
       title: article.webTitle || '',
       description: '',
       url: article.webUrl,
-      urlToImage: null,
+      urlToImage: article?.fields?.thumbnail,
       publishedAt: article?.webPublicationDate,
       content: null,
       category: article.pillarName,

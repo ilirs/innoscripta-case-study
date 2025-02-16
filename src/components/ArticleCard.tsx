@@ -1,5 +1,5 @@
 import React from 'react';
-import { Article } from '../types/Article';
+import { Article } from 'types/Article';
 
 const ArticleCard: React.FC<{ article: Article }> = ({ article }) => (
   <article className="flex flex-col items-start justify-between">

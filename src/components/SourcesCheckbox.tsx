@@ -1,5 +1,5 @@
 import React from 'react';
-import { SourceType } from '../pages/Home';
+import { SourceType } from 'pages/Home';
 
 interface SourcesCheckboxProps {
   sources: string[];

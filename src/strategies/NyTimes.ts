@@ -1,8 +1,9 @@
 import { FetchStrategy } from '.';
-import { Article } from '../types/Article';
-import { Params } from '../types/Params';
+import { Article } from 'types/Article';
+import { Params } from 'types/Params';
 
 const NY_TIMES_URL = 'https://api.nytimes.com/svc/search/v2/articlesearch.json';
+const NY_WEB_URL = 'https://www.nytimes.com/';
 
 const formatDate = (date: Date): string => {
   const year = date.getFullYear();
@@ -48,8 +49,10 @@ export class NYTimesStrategy implements FetchStrategy {
       description: article.abstract || '',
       url: article.web_url,
       urlToImage:
-        article.multimedia?.find((media: any) => media.subtype === 'xlarge')
-          ?.url || null,
+        `${NY_WEB_URL}/${
+          article.multimedia?.find((media: any) => media.subtype === 'xlarge')
+            ?.url
+        }` || null,
       publishedAt: article.pub_date,
       content: null,
       category: article.news_desk,
